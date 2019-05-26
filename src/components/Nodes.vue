@@ -10,7 +10,8 @@
       <sui-menu-menu position="right">
         <sui-menu-item right>
 
-             <sui-button  basic icon="sync alternate" size="medium" @click="refresh()" />
+             <sui-button  basic secondary  size="medium" @click="refresh()"> Refresh </sui-button>
+             
 
             <!-- <div class="ui action left icon input" placeholder="Lookup Node">
                 <input type="text" placeholder="Lookup Node (IP:Port)">
@@ -98,8 +99,8 @@
                     <sui-table-cell>{{node.data?node.data.node_state_latency:''}}</sui-table-cell>
                     <sui-table-cell>{{node.status == 'active'?'Active':'Unreachable'}}</sui-table-cell>
                     <sui-table-cell>
-                          <sui-button circular icon="close" size="mini" @click="removeNode(node.id)"/>
-                          &nbsp; <sui-loader :active="node.loading" inline />
+                          <sui-button circular  size="mini" @click="removeNode(node.id)"> Remove</sui-button>
+                          &nbsp; &nbsp;  <br/>  <br/> <sui-loader :active="node.loading" inline />
                     </sui-table-cell>
                 </sui-table-row>
             </sui-table-body>
@@ -131,7 +132,8 @@ export default {
                 port: '',
                 name: ''
 
-            }            
+            },
+            sea : {}           
 
         }
 
@@ -171,29 +173,33 @@ export default {
             this.form.port = ''
 
             this.syncNode(node)
+            this.saveNodes()
+
 
         },
 
         getNodes() {
-             this.nodes = JSON.parse(localStorage.getItem('nodes'))
+            if(localStorage.getItem('nodes'))
+              this.nodes = JSON.parse(localStorage.getItem('nodes'))
         },
 
         saveNodes() {
             localStorage.setItem('nodes', JSON.stringify(this.nodes))
         },
 
-        updateNodes() {
+        updateNodes() { 
+
+            if(this._.isEmpty(this.nodes))
+                return
 
             let nodes = this.nodes
-
-            let $this = this
-
-            console.log('updating...')
+            let $this = this 
 
             Object.keys(this.nodes).forEach(function (nodekey) {
                 let node = $this.nodes[nodekey]
                 $this.syncNode(node)
             });
+            
 
         },
 
@@ -203,7 +209,6 @@ export default {
 
         console.log('URl: '+ url)
         this.$set(node, 'loading', true)
-
 
         this.$axios.get(url, {
         timeout: 4000
